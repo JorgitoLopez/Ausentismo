@@ -20,3 +20,4 @@ try {
     http_response_code(500);
     die('Error de conexión a base de datos');
 }
+date_default_timezone_set('America/Monterrey');

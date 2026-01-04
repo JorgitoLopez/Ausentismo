@@ -15,34 +15,118 @@ $departamentos = $pdo->query("SELECT DISTINCT id_departamento FROM empleados WHE
 <title>RH System | Gestión de Entrevistas</title>
 <link href="bootstrap.min.css" rel="stylesheet">
 <link href="bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 <style>
-:root { --sidebar-bg: #ffffff; --body-bg: #f4f6f9; }
-body { background-color: var(--body-bg); font-size: 0.88rem; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-.sidebar { background: var(--sidebar-bg); border-right: 1px solid #dee2e6; min-height: 100vh; }
-.sticky-sidebar { position: sticky; top: 80px; }
-.card { border: none; border-radius: 8px; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); margin-bottom: 1.5rem; }
-.table thead { background-color: #212529; color: #ffffff; }
-.navbar { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.group-title { font-size: 0.72rem; font-weight: 700; color: #6c757d; margin-top: 15px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #f0f0f0; padding-bottom: 4px; margin-bottom: 10px; }
+:root { 
+    --sidebar-bg: #ffffff; 
+    --body-bg: #f4f6f9; 
+    --accent-color: #0d6efd; 
+}
 
-/* Calendario */
-.cal-dia{
-    border:1px solid #dee2e6;
-    border-radius:6px;
-    padding:4px;
-    min-height:65px;
-    font-size:0.7rem;
-    cursor:pointer;
+body { 
+    background-color: var(--body-bg); 
+    font-size: 0.88rem; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
 }
-.cal-dia:hover{background:#f1f3f5}
-.cal-dia.activo{
-    background:#0d6efd;
-    color:white;
+
+.sidebar { 
+    background: var(--sidebar-bg); 
+    border-right: 1px solid #dee2e6; 
+    min-height: 100vh; 
 }
-.cal-total{color:#dc3545;font-size:0.65rem}
-.cal-turno{color:#0d6efd;font-size:0.65rem}
-.cal-header{font-weight:bold;text-align:center;font-size:0.75rem;color:#495057;margin-bottom:4px;}
+
+.sticky-sidebar { 
+    position: sticky; 
+    top: 80px; 
+}
+
+.card { 
+    border: none; 
+    border-radius: 8px; 
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); 
+    margin-bottom: 1.5rem; 
+}
+
+.table thead { 
+    background-color: #212529; 
+    color: #ffffff; 
+}
+
+.navbar { 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+}
+
+.group-title { 
+    font-size: 0.72rem; 
+    font-weight: 700; 
+    color: #6c757d; 
+    margin-top: 15px; 
+    text-transform: uppercase; 
+    letter-spacing: 0.5px; 
+    border-bottom: 1px solid #f0f0f0; 
+    padding-bottom: 4px; 
+    margin-bottom: 10px; 
+}
+
+/* --- Calendario Dinámico --- */
+
+.cal-dia {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 6px;
+    min-height: 70px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    background-color: #fff;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.cal-dia:hover {
+    background-color: #f8f9fa;
+    border-color: #adb5bd;
+}
+
+/* Selección mejorada para contraste */
+.cal-dia.activo {
+    background-color: #e7f1ff !important; /* Azul claro de fondo */
+    border: 2px solid var(--accent-color) !important; /* Borde fuerte */
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+    transform: translateY(-2px);
+}
+
+.cal-dia strong {
+    color: #212529;
+    margin-bottom: 4px;
+}
+
+.cal-total {
+    color: #dc3545; /* Rojo para Turno */
+    font-size: 0.65rem;
+    font-weight: 600;
+}
+
+.cal-turno {
+    color: #0d6efd; /* Azul para Línea */
+    font-size: 0.65rem;
+    font-weight: 600;
+}
+
+/* Cuando está activo, resaltamos un poco más los textos */
+.cal-dia.activo .cal-turno {
+    color: #084298; 
+}
+
+.cal-header {
+    font-weight: bold;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #495057;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
 </style>
 </head>
 <body>
@@ -171,14 +255,6 @@ body { background-color: var(--body-bg); font-size: 0.88rem; font-family: 'Segoe
 <small class="text-muted">Si no selecciona fecha, no se aplica suspensión</small>
 </div>
 
-<div class="mb-3">
-<label class="form-label fw-bold small">ESTATUS DE ENTREVISTA</label>
-<select id="edit_estatus" class="form-select">
-<option value="PENDIENTE">PENDIENTE</option>
-<option value="COMPLETADA">COMPLETADA</option>
-</select>
-</div>
-
 </form>
 </div>
 <div class="modal-footer bg-light">
@@ -193,11 +269,14 @@ body { background-color: var(--body-bg); font-size: 0.88rem; font-family: 'Segoe
 <script>
 const modalEntrevista = new bootstrap.Modal(document.getElementById('modalEntrevista'));
 
-// Variables para calendario
+// Variables globales para el estado del calendario
 let fechaActual = new Date();
 let turnoEmpleado = null;
 let lineaEmpleado = null;
 
+/**
+ * Carga la lista principal de entrevistas con los filtros laterales
+ */
 function cargarEntrevistas() {
     const filtros = {
         fecha: document.getElementById('filtro_fecha').value,
@@ -219,25 +298,41 @@ function cargarEntrevistas() {
     });
 }
 
-// Abrir modal y preparar calendario
-function abrirModal(id, motivo, suspension, estatus, turno, linea){
+/**
+ * Prepara y abre el modal de edición
+ */
+function abrirModal(id, motivo, turno, linea){
+    // Asignar valores a los campos ocultos y textarea
     document.getElementById('edit_id').value = id;
     document.getElementById('edit_motivo').value = motivo;
-    document.getElementById('edit_estatus').value = estatus;
+    document.getElementById('edit_suspension').value = ""; // Limpiar selección previa
+
+    // Guardar contexto del empleado para el calendario
     turnoEmpleado = turno;
     lineaEmpleado = linea;
+    
+    // Reiniciar calendario al mes actual y renderizar
     fechaActual = new Date();
-    renderCalendario();
+    renderCalendario(turnoEmpleado, lineaEmpleado);
+    
     modalEntrevista.show();
 }
 
+/**
+ * Guarda los cambios de la entrevista y la suspensión
+ */
 function guardarCambios(){
     const data = {
         id_entrevista: document.getElementById('edit_id').value,
         motivo: document.getElementById('edit_motivo').value,
-        fecha_suspension: document.getElementById('edit_suspension').value,
-        estatus_entrevista: document.getElementById('edit_estatus').value
+        fecha_suspension: document.getElementById('edit_suspension').value
     };
+    
+    if(!data.motivo) {
+        alert("Por favor ingrese un motivo.");
+        return;
+    }
+
     fetch('ajax/actualizar_entrevista.php',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
@@ -247,75 +342,113 @@ function guardarCambios(){
             modalEntrevista.hide();
             cargarEntrevistas();
         } else {
-            alert("Error al guardar cambios: "+res.error);
+            alert("Error al guardar cambios: " + res.error);
         }
     });
 }
 
+/**
+ * Resetea los filtros laterales
+ */
 function limpiarFiltros(){
-    document.getElementById('filtro_suspension').value="";
-    document.getElementById('filtro_estatus').value="";
-    document.getElementById('filtro_turno').value="";
+    document.getElementById('filtro_suspension').value = "";
+    document.getElementById('filtro_estatus').value = "";
+    document.getElementById('filtro_turno').value = "";
     cargarEntrevistas();
 }
 
-// --------- CALENDARIO DINÁMICO ----------
-function renderCalendario(){
+// --------- LÓGICA DEL CALENDARIO DINÁMICO ----------
+
+/**
+ * Dibuja la cuadrícula del calendario
+ */
+function renderCalendario(turno, linea){
     const y = fechaActual.getFullYear();
     const m = fechaActual.getMonth();
 
-    const mesNombre = fechaActual.toLocaleDateString('es-MX',{month:'long',year:'numeric'});
+    const mesNombre = fechaActual.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
     document.getElementById('calendarioTitulo').innerText = mesNombre;
 
     const cont = document.getElementById('calendario');
     cont.innerHTML = '';
 
-    const primerDia = new Date(y,m,1).getDay(); // 0=Domingo
-    const totalDias = new Date(y,m+1,0).getDate();
+    const primerDia = new Date(y, m, 1).getDay();
+    const totalDias = new Date(y, m + 1, 0).getDate();
 
-    // Ajuste para empezar lunes
-    let offset = primerDia === 0 ? 6 : primerDia-1;
-    for(let i=0;i<offset;i++) cont.appendChild(document.createElement('div'));
+    // Ajuste para que la semana empiece en Lunes (0=Dom, 1=Lun...)
+    let offset = (primerDia === 0) ? 6 : primerDia - 1;
+    for(let i = 0; i < offset; i++) {
+        cont.appendChild(document.createElement('div'));
+    }
 
-    for(let d=1; d<=totalDias; d++){
-        const fecha = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    for(let d = 1; d <= totalDias; d++){
+        const fecha = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         const div = document.createElement('div');
-        div.className='cal-dia';
-        div.innerHTML=`<strong>${d}</strong><div class="cal-total" id="t-${fecha}">🔴 0</div><div class="cal-turno" id="l-${fecha}">🔵 0</div>`;
-        div.onclick=()=>seleccionarFecha(fecha,div);
+        div.className = 'cal-dia';
+        div.innerHTML = `
+            <strong>${d}</strong>
+            <div class="cal-total" id="t-${fecha}">Turno: 0</div>
+            <div class="cal-turno" id="l-${fecha}">Línea: 0</div>
+        `;
+        div.onclick = () => seleccionarFecha(fecha, div);
         cont.appendChild(div);
     }
 
-    cargarConteoCalendario(y,m+1);
+    cargarConteoCalendario(y, m + 1, turno, linea);
 }
 
+/**
+ * Navegación entre meses
+ */
 function cambiarMes(v){
-    fechaActual.setMonth(fechaActual.getMonth()+v);
-    renderCalendario();
+    fechaActual.setMonth(fechaActual.getMonth() + v);
+    renderCalendario(turnoEmpleado, lineaEmpleado);
 }
 
-function seleccionarFecha(fecha,div){
-    document.querySelectorAll('.cal-dia').forEach(d=>d.classList.remove('activo'));
+/**
+ * Gestiona la selección visual de un día
+ */
+function seleccionarFecha(fecha, div){
+    // Remover estado activo y resetear escala de todos los días
+    document.querySelectorAll('.cal-dia').forEach(d => {
+        d.classList.remove('activo');
+        d.style.transform = "scale(1)";
+    });
+
+    // Activar el día seleccionado con un ligero zoom
     div.classList.add('activo');
+    div.style.transform = "scale(1.05)";
+    
+    // Guardar el valor en el input oculto para el formulario
     document.getElementById('edit_suspension').value = fecha;
 }
 
-function cargarConteoCalendario(anio,mes){
+/**
+ * Obtiene del servidor los conteos de personas ya suspendidas
+ */
+function cargarConteoCalendario(anio, mes, turno, linea){
     fetch('ajax/calendario_suspensiones.php',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({anio, mes, turno:turnoEmpleado, linea:lineaEmpleado})
-    }).then(r=>r.json()).then(data=>{
-        data.forEach(x=>{
-            const t=document.getElementById(`t-${x.fecha}`);
-            const l=document.getElementById(`l-${x.fecha}`);
-            if(t) t.innerText=`🔴 ${x.total}`;
-            if(l) l.innerText=`🔵 ${x.turno_linea}`;
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ anio, mes, turno, linea })
+    })
+    .then(r => r.json())
+    .then(data => {
+        data.forEach(x => {
+            const t = document.getElementById(`t-${x.fecha}`);
+            const l = document.getElementById(`l-${x.fecha}`);
+            
+            // Inyectar los totales obtenidos
+            if(t) t.innerText = `Turno: ${x.total_turno}`;
+            if(l) l.innerText = `Línea ${linea}: ${x.total_linea}`;
         });
-    });
+    })
+    .catch(err => console.error("Error al cargar conteos:", err));
 }
 
+// Inicialización al cargar la página
 window.onload = cargarEntrevistas;
 </script>
+
 </body>
 </html>
