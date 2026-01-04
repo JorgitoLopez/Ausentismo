@@ -75,6 +75,7 @@ $departamentos = $pdo->query("SELECT DISTINCT id_departamento FROM empleados WHE
 <li class="nav-item"><a class="nav-link" href="empleados.php">Empleados</a></li>
 <li class="nav-item"><a class="nav-link active" href="permisos.php">Permisos</a></li>
 <li class="nav-item"><a class="nav-link" href="entrevistas.php">Entrevistas</a></li>
+<li class="nav-item"><a class="nav-link" href="suspensiones.php">Suspensiones</a></li>
 </ul>
 </div>
 </div>
